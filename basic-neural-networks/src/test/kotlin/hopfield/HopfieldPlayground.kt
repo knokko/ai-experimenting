@@ -16,10 +16,10 @@ fun main() {
 
     val weights = train(pattern1, pattern2, pattern3)
 
-    val test = patternFromImage("test1.20")
+    val test = patternFromImage("test2.4")
 
     associate(weights, test)
-    patternToImage(test, 10, "test1")
+    patternToImage(test, 10, "test2")
 }
 
 fun patternToImage(pattern: Vector, width: Int, name: String) {
