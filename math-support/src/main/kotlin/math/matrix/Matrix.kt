@@ -2,6 +2,7 @@ package math.matrix
 
 import math.Num
 import math.vector.Vector
+import math.vector.arrayZeroVector
 import java.awt.Color
 import java.awt.image.BufferedImage
 import java.awt.image.BufferedImage.TYPE_INT_ARGB
@@ -130,7 +131,7 @@ interface Matrix : Iterable<Vector>, Cloneable {
     public override fun clone(): Matrix
 }
 
-private class RowVector(val owner: Matrix, val rowIndex: Int) : Vector {
+internal class RowVector(val owner: Matrix, val rowIndex: Int) : Vector {
 
     override fun get(index: Int) = owner.get(rowIndex, index)
 
@@ -140,14 +141,18 @@ private class RowVector(val owner: Matrix, val rowIndex: Int) : Vector {
 
     override fun size() = owner.getNumCols()
 
-    override fun clone() = RowVector(owner, rowIndex)
+    override fun clone(): Vector {
+        val clone = arrayZeroVector(owner.getNumCols())
+        copy(clone)
+        return clone
+    }
 
     override fun equals(other: Any?) = vectorEquals(other)
 
     override fun toString() = toVectorString()
 }
 
-private class ColVector(val owner: Matrix, val colIndex: Int) : Vector {
+internal class ColVector(val owner: Matrix, val colIndex: Int) : Vector {
 
     override fun get(index: Int) = owner.get(index, colIndex)
 
@@ -157,7 +162,11 @@ private class ColVector(val owner: Matrix, val colIndex: Int) : Vector {
 
     override fun size() = owner.getNumRows()
 
-    override fun clone() = ColVector(owner, colIndex)
+    override fun clone(): Vector {
+        val clone = arrayZeroVector(owner.getNumRows())
+        copy(clone)
+        return clone
+    }
 
     override fun equals(other: Any?) = vectorEquals(other)
 
@@ -190,7 +199,7 @@ private class ColIterator(private val matrix: Matrix) : Iterator<Vector> {
     }
 }
 
-private class MatrixVector(private val matrix: Matrix) : Vector {
+internal class MatrixVector(private val matrix: Matrix) : Vector {
 
     override fun get(index: Int) = matrix[index / matrix.getNumCols()][index % matrix.getNumCols()]
 

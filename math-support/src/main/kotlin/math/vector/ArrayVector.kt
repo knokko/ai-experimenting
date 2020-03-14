@@ -27,4 +27,4 @@ fun arrayZeroVector(size: Int) = ArrayVector(Array(size) {0f})
 
 fun arrayOnesVector(size: Int) = ArrayVector(Array(size) {1f})
 
-fun arrayVectorOf(vararg elements: Num) = ArrayVector(Array(elements.size) {index -> elements[index]})
+fun arrayVectorOf(vararg elements: Num) = ArrayVector(Array(elements.size) { index -> elements[index]})
