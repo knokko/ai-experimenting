@@ -17,6 +17,12 @@ class ArrayMatrix(private val array: Array<Num>, private val rows: Int, private 
     @Throws(IndexOutOfBoundsException::class)
     override fun get(row: Int, col: Int) = array[indexFor(row, col)]
 
+    override fun clone() = ArrayMatrix(array.clone(), rows, cols)
+
+    override fun equals(other: Any?) = matrixEquals(other)
+
+    override fun toString() = matrixToString()
+
     @Throws(IndexOutOfBoundsException::class)
     private fun indexFor(row: Int, col: Int): Int {
         if (row < 0 || col < 0 || row >= rows || col >= cols)

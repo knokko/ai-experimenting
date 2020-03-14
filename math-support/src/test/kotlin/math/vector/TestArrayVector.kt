@@ -1,6 +1,6 @@
 package math.vector
 
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Test
 
 class TestArrayVector {
@@ -57,5 +57,40 @@ class TestArrayVector {
         assertEquals(3f, dest[0])
         assertEquals(1f, dest[1])
         assertEquals(0f, dest[2])
+    }
+
+    @Test
+    fun testAsMatrix() {
+        val vector = arrayVectorOf(2f, 1f, 4f, 3f, 0f, 8f)
+        val matrix = vector.asMatrix(2, 3)
+        assertEquals(2f, matrix[0][0])
+        assertEquals(1f, matrix[0][1])
+        assertEquals(4f, matrix[0][2])
+        assertEquals(3f, matrix[1][0])
+        assertEquals(0f, matrix[1][1])
+        assertEquals(8f, matrix[1][2])
+
+        matrix[0][0] = 1f
+        assertEquals(1f, vector[0])
+    }
+
+    @Test
+    fun testEquals() {
+        val first = arrayVectorOf(1f, 3f)
+        val second = arrayVectorOf(1f, 3f)
+        val third = arrayVectorOf(2f, 3f)
+        assertTrue(first == second)
+        assertFalse(second == third)
+    }
+
+    @Test
+    fun testClone() {
+        val vector = arrayVectorOf(-3f, 4f)
+        val cloned = vector.clone()
+        assertTrue(vector == cloned)
+        assertFalse(vector === cloned)
+
+        vector[0] = 1f
+        assertEquals(-3f, cloned[0])
     }
 }
