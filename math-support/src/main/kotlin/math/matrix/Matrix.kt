@@ -2,6 +2,9 @@ package math.matrix
 
 import math.Num
 import math.vector.Vector
+import java.awt.Color
+import java.awt.image.BufferedImage
+import java.awt.image.BufferedImage.TYPE_INT_ARGB
 
 interface Matrix : Iterable<Vector>, Cloneable {
 
@@ -202,4 +205,31 @@ private class MatrixVector(private val matrix: Matrix) : Vector {
     override fun equals(other: Any?) = vectorEquals(other)
 
     override fun toString() = toVectorString()
+}
+
+fun imageToMatrix(image: BufferedImage, dest: Matrix, mapping: (Color) -> Num) {
+    if (image.width != dest.getNumCols())
+        throw IllegalArgumentException("The width (${image.width}) should be the same as the number of columns (${dest.getNumCols()})")
+    if (image.height != dest.getNumRows())
+        throw IllegalArgumentException("The height (${image.height}) should be the same as the number of rows (${dest.getNumRows()})")
+
+    for ((rowIndex, row) in dest.rows().withIndex()) {
+        for (colIndex in 0 until row.size()) {
+            val rgb = image.getRGB(colIndex, rowIndex)
+            val pixel = Color(rgb, true)
+            row[colIndex] = mapping(pixel)
+        }
+    }
+}
+
+fun matrixToImage(matrix: Matrix, mapping: (Num) -> Color): BufferedImage {
+    val image = BufferedImage(matrix.getNumCols(), matrix.getNumCols(), TYPE_INT_ARGB)
+    for ((rowIndex, row) in matrix.rows().withIndex()) {
+        for ((colIndex, value) in row.withIndex()) {
+            val pixel = mapping(value)
+            image.setRGB(colIndex, rowIndex, pixel.rgb)
+        }
+    }
+
+    return image
 }

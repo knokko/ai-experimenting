@@ -1,11 +1,10 @@
 package hopfield
 
+import math.matrix.arrayZeroMatrix
+import math.matrix.imageToMatrix
+import math.matrix.matrixToImage
 import math.vector.Vector
-import math.vector.arrayZeroVector
-import java.awt.Color
 import java.awt.Color.*
-import java.awt.image.BufferedImage
-import java.awt.image.BufferedImage.TYPE_INT_RGB
 import java.io.File
 import javax.imageio.ImageIO
 
@@ -16,32 +15,24 @@ fun main() {
 
     val weights = train(pattern1, pattern2, pattern3)
 
-    val test = patternFromImage("test2.4")
+    val test = patternFromImage("test1.10")
 
     associate(weights, test)
-    patternToImage(test, 10, "test2")
+    patternToImage(test, 10, "test1")
 }
 
 fun patternToImage(pattern: Vector, width: Int, name: String) {
+
     val height = pattern.size() / width
-    val image = BufferedImage(width, height, TYPE_INT_RGB)
-
-    val white = WHITE.rgb
-    val black = BLACK.rgb
-
-    for (x in 0 until width) {
-        for (y in 0 until height) {
-            val vecValue = pattern[x + y * width]
-            if (vecValue == -1f)
-                image.setRGB(x, y, black)
-            else if (vecValue == 1f)
-                image.setRGB(x, y, white)
-            else
-                throw IllegalArgumentException("Not all elements are -1 or 1")
+    val image = matrixToImage(pattern.asMatrix(height, width)){value ->
+        when (value) {
+            -1f -> BLACK
+            1f -> WHITE
+            else -> throw IllegalArgumentException("Not all elements are -1 or 1")
         }
     }
 
-    ImageIO.write(image, "PNG", File(name + ".png"))
+    ImageIO.write(image, "PNG", File("$name.png"))
 }
 
 fun patternFromImage(name: String): Vector {
@@ -49,23 +40,16 @@ fun patternFromImage(name: String): Vector {
     val resource = someClass.classLoader.getResource("hopfield/$name.png")
     val image = ImageIO.read(resource)
 
-    val vector = arrayZeroVector(image.width * image.height)
-    for (x in 0 until image.width) {
-        for (y in 0 until image.height) {
-            val pixel = Color(image.getRGB(x, y))
-
-            val vecValue = if (pixel.red == 255)
-                1f
-            else if (pixel.red == 0)
-                -1f
-            else
-                throw IllegalArgumentException("Not all pixels are black or white")
-
-            vector[x + y * image.width] = vecValue
+    val matrix = arrayZeroMatrix(image.height, image.width)
+    imageToMatrix(image, matrix){color ->
+        when (color) {
+            BLACK -> -1f
+            WHITE -> 1f
+            else -> throw IllegalArgumentException("Not all pixels are black or white")
         }
     }
 
-    return vector
+    return matrix.asVector()
 }
 
 class DummyClass {
