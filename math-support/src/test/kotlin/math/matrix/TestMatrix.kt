@@ -1,7 +1,9 @@
 package math.matrix
 
 import math.Num
+import math.vector.arrayVectorOf
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 abstract class TestMatrix {
@@ -93,5 +95,36 @@ abstract class TestMatrix {
 
         vector[1] = 6f
         Assert.assertEquals(6f, matrix[0][1])
+    }
+
+    @Test
+    fun testMatrixMultiplication() {
+        val right = matrixOf(
+                arrayOf(7f),
+                arrayOf(8f),
+                arrayOf(9f)
+        )
+        val left = matrixOf(
+                arrayOf(1f, 2f, 3f),
+                arrayOf(4f, 5f, 6f)
+        )
+
+        val expected = matrixOf(
+                arrayOf(50f),
+                arrayOf(122f)
+        )
+        assertEquals(expected, left * right)
+    }
+
+    @Test
+    fun testVectorMultiplication() {
+        val vector = arrayVectorOf(1f, 2f, 3f)
+        val matrix = arrayMatrixOf(
+                arrayOf(4f, 5f, 6f),
+                arrayOf(7f, 8f, 9f)
+        )
+
+        val expected = arrayVectorOf(32f, 50f)
+        assertEquals(expected, matrix * vector)
     }
 }

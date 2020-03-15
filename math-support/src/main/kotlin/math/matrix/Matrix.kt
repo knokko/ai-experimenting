@@ -98,6 +98,12 @@ interface Matrix : Iterable<Vector>, Cloneable {
 
     override fun iterator(): Iterator<Vector> = rows()
 
+    operator fun divAssign(value: Num) {
+        for (rowIndex in 0 until getNumRows())
+            for (colIndex in 0 until getNumCols())
+                this[rowIndex][colIndex] /= value
+    }
+
     /**
      * Implementations can use this method to easily override toString by simply calling this method
      */
@@ -127,6 +133,44 @@ interface Matrix : Iterable<Vector>, Cloneable {
     }
 
     fun asVector(): Vector = MatrixVector(this)
+
+    operator fun times(right: Matrix): Matrix {
+        if (getNumCols() != right.getNumRows())
+            throw IllegalArgumentException("Number of columns of this matrix (${getNumCols()}) must be equal " +
+                    "to the number of rows of the right matrix ({${right.getNumRows()})")
+
+        val result = arrayZeroMatrix(getNumRows(), right.getNumCols())
+        for (rowIndex in 0 until result.getNumRows()) {
+            for (colIndex in 0 until result.getNumCols()) {
+
+                var value = 0f
+                for (sourceIndex in 0 until getNumCols())
+                    value += this[rowIndex][sourceIndex] * right[sourceIndex][colIndex]
+
+                result[rowIndex][colIndex] = value
+            }
+        }
+
+        return result
+    }
+
+    operator fun times(right: Vector): Vector {
+        if (getNumCols() != right.size())
+            throw IllegalArgumentException("The number of columns of this matrix (${getNumCols()}) must be " +
+                    "equal to the size of the vector (${right.size()})")
+
+        val result = arrayZeroVector(getNumRows())
+        for ((rowIndex, row) in rows().withIndex()) {
+
+            var value = 0f
+            for (colIndex in 0 until getNumCols())
+                value += row[colIndex] * right[colIndex]
+
+            result[rowIndex] = value
+        }
+
+        return result
+    }
 
     public override fun clone(): Matrix
 }

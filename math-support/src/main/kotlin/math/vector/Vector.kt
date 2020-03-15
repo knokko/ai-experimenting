@@ -34,6 +34,11 @@ interface Vector : Iterable<Num>, Cloneable {
 
     override operator fun iterator(): Iterator<Num> = VectorIterator(this)
 
+    operator fun timesAssign(value: Num) {
+        for (index in 0 until size())
+            this[index] *= value
+    }
+
     /**
      * Implementing classes can use this to easily override the toString method
      * by simply calling this method.
