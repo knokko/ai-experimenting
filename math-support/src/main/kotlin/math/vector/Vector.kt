@@ -79,7 +79,7 @@ private class VectorIterator(private val vector: Vector) : Iterator<Num> {
     }
 }
 
-private class VectorMatrix(private val vector: Vector, private val rows: Int, private val cols: Int) : Matrix {
+internal class VectorMatrix(private val vector: Vector, private val rows: Int, private val cols: Int) : Matrix {
 
     override fun getNumRows() = rows
 
