@@ -5,7 +5,7 @@ import math.matrix.arrayZeroMatrix
 import math.vector.Vector
 import java.util.*
 
-fun train(vararg trainingPatterns: Vector): Matrix {
+fun hopfieldTrain(vararg trainingPatterns: Vector): Matrix {
     val numVecs = trainingPatterns.size
     val vecSize = trainingPatterns[0].size()
 
@@ -26,7 +26,7 @@ fun train(vararg trainingPatterns: Vector): Matrix {
 
 const val CONVERGE_COUNT = 500
 
-fun associate(weights: Matrix, pattern: Vector) {
+fun hopfieldAssociate(weights: Matrix, pattern: Vector) {
 
     var convergeCounter = CONVERGE_COUNT
     val rng = Random()
