@@ -39,6 +39,32 @@ interface Vector : Iterable<Num>, Cloneable {
             this[index] *= value
     }
 
+    fun dotProduct(right: Vector): Num {
+
+        if (size() != right.size())
+            throw IllegalArgumentException("Vectors must have same size, " +
+                    "but own size is ${size()} and other size is ${right.size()}")
+
+        var result = 0f
+        for ((index, own) in this.withIndex())
+            result += own * right[index]
+
+        return result
+    }
+
+    operator fun plusAssign(other: Vector) {
+        if (size() != other.size())
+            throw IllegalArgumentException("Vectors must have same size, " +
+                    "but own size is ${size()} and other size is ${other.size()}")
+
+        for ((index, value) in other.withIndex())
+            this[index] += value
+    }
+
+    operator fun times(right: Vector) = dotProduct(right)
+
+    operator fun times(right: Num) = ArrayVector(Array(size()){index -> this[index] * right})
+
     /**
      * Implementing classes can use this to easily override the toString method
      * by simply calling this method.
@@ -70,6 +96,8 @@ interface Vector : Iterable<Num>, Cloneable {
         }
     }
 }
+
+operator fun Num.times(vector: Vector) = vector * this
 
 private class VectorIterator(private val vector: Vector) : Iterator<Num> {
 
