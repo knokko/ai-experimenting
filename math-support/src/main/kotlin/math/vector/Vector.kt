@@ -65,6 +65,23 @@ interface Vector : Iterable<Num>, Cloneable {
 
     operator fun times(right: Num) = ArrayVector(Array(size()){index -> this[index] * right})
 
+    operator fun minusAssign(right: Vector) {
+        plusAssign(-right)
+    }
+
+    operator fun minus(right: Vector): Vector {
+        val result = clone()
+        result -= right
+        return result
+    }
+
+    operator fun unaryMinus(): Vector {
+        val result = arrayZeroVector(size())
+        for ((index, value) in withIndex())
+            result[index] = -value
+        return result
+    }
+
     /**
      * Implementing classes can use this to easily override the toString method
      * by simply calling this method.
