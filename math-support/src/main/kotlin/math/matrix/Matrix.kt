@@ -185,15 +185,13 @@ internal class RowVector(val owner: Matrix, val rowIndex: Int) : Vector {
 
     override fun size() = owner.getNumCols()
 
-    override fun clone(): Vector {
-        val clone = arrayZeroVector(owner.getNumCols())
-        copy(clone)
-        return clone
-    }
+    override fun zeroCopy() = arrayZeroVector(size())
 
     override fun equals(other: Any?) = vectorEquals(other)
 
     override fun toString() = toVectorString()
+
+    override fun hashCode() = vectorHashcode()
 }
 
 internal class ColVector(val owner: Matrix, val colIndex: Int) : Vector {
@@ -206,15 +204,13 @@ internal class ColVector(val owner: Matrix, val colIndex: Int) : Vector {
 
     override fun size() = owner.getNumRows()
 
-    override fun clone(): Vector {
-        val clone = arrayZeroVector(owner.getNumRows())
-        copy(clone)
-        return clone
-    }
+    override fun zeroCopy() = arrayZeroVector(size())
 
     override fun equals(other: Any?) = vectorEquals(other)
 
     override fun toString() = toVectorString()
+
+    override fun hashCode() = vectorHashcode()
 }
 
 private class RowIterator(private val matrix: Matrix) : Iterator<Vector> {
@@ -253,11 +249,13 @@ internal class MatrixVector(private val matrix: Matrix) : Vector {
 
     override fun size() = matrix.getNumRows() * matrix.getNumCols()
 
-    override fun clone() = MatrixVector(matrix.clone())
+    override fun zeroCopy() = arrayZeroVector(size())
 
     override fun equals(other: Any?) = vectorEquals(other)
 
     override fun toString() = toVectorString()
+
+    override fun hashCode() = vectorHashcode()
 }
 
 fun imageToMatrix(image: BufferedImage, dest: Matrix, mapping: (Color) -> Num) {

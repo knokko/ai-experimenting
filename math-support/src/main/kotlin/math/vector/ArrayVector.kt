@@ -12,15 +12,13 @@ class ArrayVector(private val array: Array<Num>) : Vector {
 
     override fun size() = array.size
 
+    override fun zeroCopy() = arrayZeroVector(size())
+
     override fun toString() = toVectorString()
 
     override fun equals(other: Any?): Boolean = vectorEquals(other)
 
-    override fun clone(): Vector {
-        val clone = arrayZeroVector(size())
-        copy(clone)
-        return clone
-    }
+    override fun hashCode() = vectorHashcode()
 }
 
 fun arrayZeroVector(size: Int) = ArrayVector(Array(size) {0f})
