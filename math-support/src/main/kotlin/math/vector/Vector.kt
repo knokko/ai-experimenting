@@ -3,8 +3,12 @@ package math.vector
 import math.Num
 import math.matrix.Matrix
 
+/**
+ * Represents a mathematical vector of numbers.
+ */
 interface Vector : Iterable<Num>, Cloneable {
 
+    // <-- Abstract operations -->
     @Throws(IndexOutOfBoundsException::class)
     operator fun get(index: Int) : Num
 
@@ -16,71 +20,218 @@ interface Vector : Iterable<Num>, Cloneable {
      */
     fun size() : Int
 
+    /**
+     * Creates a new vector with the same length as this vector.
+     *
+     * It is recommended to create a new vector with the same class as this vector,
+     * but that is not required.
+     */
+    fun zeroCopy(): Vector
+
+    // <-- Cloning operations -->
+
+    /**
+     * Copies the elements of this vector into [dest].
+     *
+     * If [dest] has more elements than this vector, only the first this.size()
+     * elements of [dest] will be affected.
+     *
+     * @param dest The destination vector where the elements of this vector will be copied to
+     * @throws IllegalArgumentException If [dest] has less elements than this vector
+     */
+    @Throws(IllegalArgumentException::class)
     fun copy(dest: Vector) {
         if (dest.size() < size())
             throw IllegalArgumentException("Dest vector (size=${dest.size()}) is smaller than this vector (size=${size()})")
-        for (index in 0 until size())
-            dest[index] = this[index]
+
+        for ((index, value) in this.withIndex())
+            dest[index] = value
     }
 
-    public override fun clone(): Vector
+    /**
+     * Creates a copy of this vector.
+     *
+     * It will have the same size and the same elements, but it will not share its elements with this vector.
+     * So modifying the clone will *not* modify this vector.
+     *
+     * @return A copy of this vector
+     */
+    public override fun clone(): Vector {
+        val result = zeroCopy()
+        copy(result)
+        return result
+    }
 
+    // <-- Other operations -->
+
+    /**
+     * Creates a matrix view of this vector.
+     *
+     * The resulting matrix will have [numRows] rows and [numCols] columns.
+     * The element at result(row,col) will refer to this(col + row * [numCols]).
+     * Modifying this vector *will* affect the matrix view and vice versa.
+     *
+     * @throws IllegalArgumentException If [numCols] * [numRows] is not equal to this.size()
+     * @return A matrix view over this vector
+     */
+    @Throws(IllegalArgumentException::class)
     fun asMatrix(numRows: Int, numCols: Int): Matrix {
         if (numRows * numCols != size())
-            throw IllegalArgumentException("numRols * numCols ($numRows * $numCols = ${numRows * numCols}) must be equal to size (${size()})")
+            throw IllegalArgumentException("numRows * numCols ($numRows * $numCols = ${numRows * numCols}) must be equal to size (${size()})")
 
         return VectorMatrix(this, numRows, numCols)
     }
 
-    override operator fun iterator(): Iterator<Num> = VectorIterator(this)
+    // <-- Mathematical operations with scalars -->
 
-    operator fun timesAssign(value: Num) {
+    /**
+     * Multiplies (all elements in) this vector with [scalar].
+     *
+     * Note that you shouldn't call this method explicitly because
+     * you can also use the times assign operator.
+     */
+    fun scalarMultiplication(scalar: Num) {
         for (index in 0 until size())
-            this[index] *= value
+            this[index] *= scalar
     }
 
-    fun dotProduct(right: Vector): Num {
+    /**
+     * Divides all elements in this vector by [scalar].
+     *
+     * Note that you shouldn't call this method explicitly because
+     * you can also use the division assign operator.
+     */
+    fun scalarDivision(scalar: Num) = scalarMultiplication(1f / scalar)
 
-        if (size() != right.size())
-            throw IllegalArgumentException("Vectors must have same size, " +
-                    "but own size is ${size()} and other size is ${right.size()}")
-
-        var result = 0f
-        for ((index, own) in this.withIndex())
-            result += own * right[index]
-
+    /**
+     * Multiplies (all elements of) this vector with [scalar] and returns the resulting vector.
+     * This vector will not be affected.
+     *
+     * Note that you shouldn't call this method explicitly because
+     * you can also use the times operator.
+     */
+    fun scalarProduct(scalar: Num): Vector {
+        val result = clone()
+        result *= scalar
         return result
     }
 
-    operator fun plusAssign(other: Vector) {
-        if (size() != other.size())
-            throw IllegalArgumentException("Vectors must have same size, " +
-                    "but own size is ${size()} and other size is ${other.size()}")
+    /**
+     * Divides (all elements of) this vector by [scalar] and returns the resulting vector.
+     * This vector will not be affected.
+     *
+     * Note that you shouldn't call this method explicitly because
+     * you can also use the division operator.
+     */
+    fun scalarQuotient(scalar: Num): Vector {
+        val result = clone()
+        result /= scalar
+        return result
+    }
 
+    // <-- Mathematical operations with vectors -->
+
+    /**
+     * Adds the other vector to this vector (element wise).
+     * This method only changes this vector, not the other vector.
+     *
+     * Note that you shouldn't call this method explicitly, but use the plus assign operator instead.
+     *
+     * @throws IllegalArgumentException If the size of this vector is not the same as the size of [other]
+     */
+    @Throws(IllegalArgumentException::class)
+    fun vectorAddition(other: Vector) {
+        if (size() != other.size())
+            throw IllegalArgumentException("The sizes of this vector (${size()}) and " +
+                    "the other vector (${other.size()}) must be the same")
         for ((index, value) in other.withIndex())
             this[index] += value
     }
 
+    /**
+     * Adds the other vector to this vector (element wise) and returns the resulting vector.
+     * This method doesn't modify this vector or the other vector.
+     *
+     * Note that you shouldn't call this method explicitly, but use the plus operator instead.
+     *
+     * @throws IllegalArgumentException If the size of this vector is not the same as the size of [other]
+     */
+    @Throws(IllegalArgumentException::class)
+    fun vectorSum(other: Vector): Vector {
+        val result = clone()
+        result += other
+        return result
+    }
+
+    /**
+     * Subtracts the other vector from this vector (element wise).
+     * This method only changes this vector, not the other vector.
+     *
+     * Note that you shouldn't call this method explicitly, but use the minus assign operator instead.
+     *
+     * @throws IllegalArgumentException If the size of this vector is not the same as the size of [right]
+     */
+    @Throws(IllegalArgumentException::class)
+    fun vectorSubtraction(right: Vector) = vectorAddition(-right)
+
+    /**
+     * Subtracts the other vector from this vector (element wise) and returns the resulting vector.
+     * This method doesn't modify this vector or the other vector.
+     *
+     * Note that you shouldn't call this method explicitly, but use the minus operator instead.
+     *
+     * @throws IllegalArgumentException If the size of this vector is not the same as the size of [right]
+     */
+    @Throws(IllegalArgumentException::class)
+    fun vectorDifference(right: Vector) = vectorSum(-right)
+
+    /**
+     * Computes and returns the dot product of this vector with the other vector.
+     *
+     * Note that you shouldn't call this method explicitly, but use the times operator instead.
+     *
+     * @throws IllegalArgumentException If the size of this vector is not the same as the size of [other]
+     * @return The dot product of this vector with [other]
+     */
+    @Throws(IllegalArgumentException::class)
+    fun dotProduct(other: Vector): Num {
+
+        if (size() != other.size())
+            throw IllegalArgumentException("Vectors must have same size, " +
+                    "but own size is ${size()} and other size is ${other.size()}")
+
+        var result = 0f
+        for ((index, own) in this.withIndex())
+            result += own * other[index]
+
+        return result
+    }
+
+    // <-- Operator overloading methods -->
+
+    override operator fun iterator(): Iterator<Num> = VectorIterator(this)
+
+    operator fun plus(other: Vector) = vectorSum(other)
+
+    operator fun plusAssign(other: Vector) = vectorAddition(other)
+
+    operator fun minus(right: Vector) = vectorDifference(right)
+
+    operator fun minusAssign(right: Vector) = vectorSubtraction(right)
+
+    operator fun times(scalar: Num) = scalarProduct(scalar)
+
     operator fun times(right: Vector) = dotProduct(right)
 
-    operator fun times(right: Num) = ArrayVector(Array(size()){index -> this[index] * right})
+    operator fun timesAssign(scalar: Num) = scalarMultiplication(scalar)
 
-    operator fun minusAssign(right: Vector) {
-        plusAssign(-right)
-    }
+    operator fun div(scalar: Num) = scalarQuotient(scalar)
 
-    operator fun minus(right: Vector): Vector {
-        val result = clone()
-        result -= right
-        return result
-    }
+    operator fun divAssign(scalar: Num) = scalarDivision(scalar)
 
-    operator fun unaryMinus(): Vector {
-        val result = arrayZeroVector(size())
-        for ((index, value) in withIndex())
-            result[index] = -value
-        return result
-    }
+    operator fun unaryMinus() = this * -1f
+
+    // <-- Helper methods for overriding toString(), equals() and hashCode() -->
 
     /**
      * Implementing classes can use this to easily override the toString method
@@ -91,6 +242,17 @@ interface Vector : Iterable<Num>, Cloneable {
         for (index in 0 until size() - 1)
             result += "${this[index]},"
         result += "${this[size() - 1]})"
+        return result
+    }
+
+    /**
+     * Implementing classes can use this to easily override the hashCode method
+     * by simply returning the result of this method.
+     */
+    fun vectorHashcode() : Int {
+        var result = 7 * size()
+        for (element in this)
+            result = 3 * result + (11456f * element).toInt()
         return result
     }
 
@@ -114,8 +276,11 @@ interface Vector : Iterable<Num>, Cloneable {
     }
 }
 
-operator fun Num.times(vector: Vector) = vector * this
+// <-- Operator overloading for when the vector is on the right side of the operator -->
 
+operator fun Num.times(vector: Vector) = vector.scalarProduct(this)
+
+// <-- Internal support classes -->
 private class VectorIterator(private val vector: Vector) : Iterator<Num> {
 
     private var index = 0
