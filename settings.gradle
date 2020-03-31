@@ -1,4 +1,5 @@
 rootProject.name = 'ai-stuff'
 
 include 'basic-neural-networks'
+include 'reinforcement-learning'
 include 'math-support'
