@@ -25,6 +25,8 @@ interface Vector : Iterable<Num>, Cloneable {
      *
      * It is recommended to create a new vector with the same class as this vector,
      * but that is not required.
+     *
+     * @sample math.vector.TestVector.testZeroCopy
      */
     fun zeroCopy(): Vector
 
@@ -38,6 +40,7 @@ interface Vector : Iterable<Num>, Cloneable {
      *
      * @param dest The destination vector where the elements of this vector will be copied to
      * @throws IllegalArgumentException If [dest] has less elements than this vector
+     * @sample math.vector.TestVector.testCopy
      */
     @Throws(IllegalArgumentException::class)
     fun copy(dest: Vector) {
@@ -55,6 +58,7 @@ interface Vector : Iterable<Num>, Cloneable {
      * So modifying the clone will *not* modify this vector.
      *
      * @return A copy of this vector
+     * @sample math.vector.TestVector.testClone
      */
     public override fun clone(): Vector {
         val result = zeroCopy()
@@ -73,6 +77,7 @@ interface Vector : Iterable<Num>, Cloneable {
      *
      * @throws IllegalArgumentException If [numCols] * [numRows] is not equal to this.size()
      * @return A matrix view over this vector
+     * @sample math.vector.TestVector.testAsMatrix
      */
     @Throws(IllegalArgumentException::class)
     fun asMatrix(numRows: Int, numCols: Int): Matrix {
